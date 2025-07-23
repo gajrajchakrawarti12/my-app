@@ -37,7 +37,6 @@ function Landing() {
         {/* Crime tools and footer */}
         <section id="crime-section" className="relative bg-gray-100 text-black py-10 px-4">
           <Appcrime />
-          <Footer />
         </section>
       </div>
     </div>

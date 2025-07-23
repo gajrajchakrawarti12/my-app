@@ -1,7 +1,6 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import Footer from '../componentcrime/Footer.jsx';
 
 // Pages (import only the components you want to show)
 import Home from './Home';
@@ -38,7 +37,6 @@ function Appcrime() {
           {/* You can add more components below if needed */}
           {/* <AnotherComponent /> */}
         </main>
-        <Footer />
       </div>
     </ThemeProvider>
   );
