@@ -18,7 +18,7 @@ import Appcrime from './pagescrime/Appcrime.jsx'; // Adjust path if needed
 
 import Prediction from './pagescrime/Prediction.jsx';
 import SubscribeList from './pagescrime/SubscribeList.jsx';
-import Dashboard from './pagescrime/Dashboard.jsx';
+import Dashboard from './pages/Deshboard.jsx';
 import Registration from './pagescrime/Registration.jsx';
 import CrimeReport from './pagescrime/CrimeReport.jsx';
 import NotFound from './pagescrime/NotFound.jsx';
@@ -48,6 +48,10 @@ function AppWrapper() {
         <Route path="/report-scam" element={<ProtectedRoute>
           <ReportScam />
         </ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>} />
+
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<Contact />} />

@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
-import "./ChatWindow.css"; // Make sure this matches your actual CSS file
+import "./Chatbot.css";
 
 function Chatbot() {
   const [chatHistory, setChatHistory] = useState([]);
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
   const [generatingAnswer, setGeneratingAnswer] = useState(false);
   const chatContainerRef = useRef(null);
 
@@ -22,98 +21,91 @@ function Chatbot() {
 
     const apiKey = "AIzaSyBFHeenbDoWcOsZ5J-rVriNwi--kSSFWOY";
     if (!apiKey) {
-      setAnswer("🚫 API key missing! Please set REACT_APP_API_GENERATIVE_LANGUAGE_CLIENT in your .env file.");
+      setChatHistory((prev) => [...prev, { type: "answer", content: "🚫 API key missing!" }]);
       return;
     }
 
-    setGeneratingAnswer(true);
     const currentQuestion = question;
     setQuestion("");
-    setChatHistory(prev => [...prev, { type: 'question', content: currentQuestion }]);
+    setGeneratingAnswer(true);
+    setChatHistory((prev) => [...prev, { type: "question", content: currentQuestion }]);
 
     try {
       const response = await axios.post(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          contents: [{ parts: [{ text: currentQuestion }] }]
-        }
+        { contents: [{ parts: [{ text: currentQuestion }] }] }
       );
-      const aiResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "🤖 No response from model.";
-      setChatHistory(prev => [...prev, { type: 'answer', content: aiResponse }]);
-      setAnswer(aiResponse);
+      const aiResponse =
+        response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "🤖 No response from model.";
+      setChatHistory((prev) => [...prev, { type: "answer", content: aiResponse }]);
     } catch (error) {
-      console.error("Request failed:", error);
       const errorMessage = error.response?.data?.error?.message || "Something went wrong!";
-      setAnswer(`❌ ${errorMessage}`);
+      setChatHistory((prev) => [...prev, { type: "answer", content: `❌ ${errorMessage}` }]);
     }
 
     setGeneratingAnswer(false);
   }
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-r from-blue-50 to-blue-100">
-      <div className="h-full max-w-4xl mx-auto flex flex-col p-3">
-        {/* Header */}
-        <header className="chatbot-header">
-          <h1 className="chatbot-title">Cyber Rakshak Chatbot</h1>
-        </header>
-
-        {/* Chat history */}
-        <div ref={chatContainerRef} className="chat-container hide-scrollbar">
-          {chatHistory.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center p-6">
-              <div className="bg-blue-50 rounded-xl p-8 max-w-2xl">
-                <h2 className="text-2xl font-bold text-blue-600 mb-4">Welcome to Cyber Rakshak Chatbot 👋</h2>
-                <p className="text-gray-600 mb-4">Ask anything about safety, tech, or Cyber Rakshak's tools!</p>
-              </div>
+    <>
+      <div className="chatbot-app">
+        <aside className="sidebar">
+          <div className="logo">Learn With AI</div>
+          <button className="nav-button active">Chats</button>
+          <div className="sidebar-bottom">
+            <button className="nav-button">Settings</button>
+            <button className="nav-button">Log Out</button>
+            <div className="user-box">
+              <div className="user-name">Ayush Gupta</div>
+              <div className="user-email">ayushgpt@gmail.com</div>
             </div>
-          ) : (
-            <>
-              {chatHistory.map((chat, index) => (
-                <div key={index} className={`mb-4 ${chat.type === 'question' ? 'text-right' : 'text-left'}`}>
-                  <div className={`chat-bubble ${chat.type}`}>
-                    <ReactMarkdown>{chat.content}</ReactMarkdown>
-                  </div>
-                </div>
-              ))}
-              {generatingAnswer && (
-                <div className="text-left">
-                  <div className="chat-bubble answer animate-pulse">Thinking...</div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+          </div>
+        </aside>
 
-        {/* Input */}
-        <form onSubmit={generateAnswer} className="chat-form">
-          <div className="flex gap-2">
-            <textarea
-              required
+        <main className="chatbot-main">
+          <header className="chatbot-header">
+            <h1>Hi, I’m Chat Bot</h1>
+            <p>Tell me your goal, and get complete Learning Plans.</p>
+          </header>
+
+          <section className="feature-cards">
+            <div className="card orange">Guided Learning</div>
+            <div className="card yellow">Links To Course</div>
+            <div className="card cyan">Save Courses</div>
+            <div className="card pink">Chat Wit AI</div>
+            <div className="card green">Learning Plans</div>
+            <div className="card purple">Download PDFs</div>
+          </section>
+
+          <div ref={chatContainerRef} className="chat-container">
+            {chatHistory.map((chat, index) => (
+              <div
+                key={index}
+                className={`chat-bubble ${chat.type === "question" ? "question" : "answer"}`}
+              >
+                <ReactMarkdown>{chat.content}</ReactMarkdown>
+              </div>
+            ))}
+            {generatingAnswer && <div className="chat-bubble answer">Thinking...</div>}
+          </div>
+
+          <form onSubmit={generateAnswer} className="chat-form">
+            <input
+              type="text"
               className="chat-input"
+              placeholder="Enter your goal/prompts here.........."
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ask anything..."
-              rows="2"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  generateAnswer(e);
-                }
-              }}
-            ></textarea>
-            <button
-              type="submit"
-              className="chat-button"
-              disabled={generatingAnswer}
-            >
-              Send
+            />
+            <button type="submit" className="chat-send" disabled={generatingAnswer}>
+              ➤
             </button>
-          </div>
-        </form>
+          </form>
+        </main>
       </div>
-    </div>
+    </>
   );
 }
 
-export default Chatbot;
+export default Chatbot;

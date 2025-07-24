@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
+import { User } from 'lucide-react'
 
 
 function Navbar() {
@@ -29,7 +30,7 @@ function Navbar() {
           { path: '/signup', name: 'Signup' },
         ]
       : [
-          { path: '/dashboard', name: 'Dashboard' }
+          { path: '/dashboard', name: 'Dashboard', icons: 'user' },
         ]
     ),
   ];
@@ -56,6 +57,7 @@ function Navbar() {
               to={path}
               className="hover:text-yellow-300 font-medium transition-colors"
             >
+              {<User className="inline-block h-4 w-4 mr-1" />}
               {name}
             </Link>
           ))}
