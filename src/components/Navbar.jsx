@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../assets/logo.png';
+import { useAuth } from '../context/AuthContext';
+
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsOpen(false); // Close mobile menu when route changes
@@ -18,9 +21,17 @@ function Navbar() {
     { path: '/learn/videos', name: 'Videos' },
     { path: '/quiz/start', name: 'Take Quiz' },
     { path: '/quiz/results', name: 'Results' },
-    { path: '/crimeprediction', name: 'crimepredict' },
-     { path: '/contact', name: 'Contact' },
-    { path: '/login', name: 'Login' }
+    { path: '/crimeprediction', name: 'Crime Prediction' },
+    { path: '/contact', name: 'Contact' },
+    ...(!user
+      ? [
+          { path: '/login', name: 'Login' },
+          { path: '/signup', name: 'Signup' },
+        ]
+      : [
+          { path: '/dashboard', name: 'Dashboard' }
+        ]
+    ),
   ];
 
   return (

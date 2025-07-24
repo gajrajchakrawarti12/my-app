@@ -1,104 +1,119 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import "./ChatWindow.css"; // Make sure this matches your actual CSS file
 
 function Chatbot() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const apiKey = process.env.REACT_APP_OPENAI_API_KEY;
+  const [chatHistory, setChatHistory] = useState([]);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [generatingAnswer, setGeneratingAnswer] = useState(false);
+  const chatContainerRef = useRef(null);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory, generatingAnswer]);
 
-    const userMessage = { type: 'user', text: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setLoading(true);
+  async function generateAnswer(e) {
+    e.preventDefault();
+    if (!question.trim()) return;
 
-    // 🔐 Fallback if API key missing
+    const apiKey = "AIzaSyBFHeenbDoWcOsZ5J-rVriNwi--kSSFWOY";
     if (!apiKey) {
-      const botReply = {
-        type: 'bot',
-        text: "🚫 API key not found. Please configure it in your .env.local file.",
-      };
-      setMessages((prev) => [...prev, botReply]);
-      setInput('');
-      setLoading(false);
+      setAnswer("🚫 API key missing! Please set REACT_APP_API_GENERATIVE_LANGUAGE_CLIENT in your .env file.");
       return;
     }
 
+    setGeneratingAnswer(true);
+    const currentQuestion = question;
+    setQuestion("");
+    setChatHistory(prev => [...prev, { type: 'question', content: currentQuestion }]);
+
     try {
       const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
-          model: 'gpt-3.5-turbo',
-          messages: [
-            { role: 'system', content: 'You are Cyber Rakshak, a friendly and ethical cybersecurity assistant.' },
-            { role: 'user', content: input }
-          ]
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            'Content-Type': 'application/json'
-          }
+          contents: [{ parts: [{ text: currentQuestion }] }]
         }
       );
-
-      const botText = response.data?.choices?.[0]?.message?.content || "⚠️ No response received.";
-      const botReply = { type: 'bot', text: botText };
-      setMessages((prev) => [...prev, botReply]);
+      const aiResponse = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "🤖 No response from model.";
+      setChatHistory(prev => [...prev, { type: 'answer', content: aiResponse }]);
+      setAnswer(aiResponse);
     } catch (error) {
-      const botReply = {
-        type: 'bot',
-        text: "❌ Couldn't reach the AI engine. Please check your internet or OpenAI key.",
-      };
-      setMessages((prev) => [...prev, botReply]);
+      console.error("Request failed:", error);
+      const errorMessage = error.response?.data?.error?.message || "Something went wrong!";
+      setAnswer(`❌ ${errorMessage}`);
     }
 
-    setInput('');
-    setLoading(false);
-  };
+    setGeneratingAnswer(false);
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-sky-200 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-xl transition-all hover:shadow-2xl">
-        <h2 className="text-3xl font-bold text-blue-800 text-center mb-5">🛡️ Cyber Rakshak Chatbot</h2>
+    <div className="fixed inset-0 bg-gradient-to-r from-blue-50 to-blue-100">
+      <div className="h-full max-w-4xl mx-auto flex flex-col p-3">
+        {/* Header */}
+        <header className="chatbot-header">
+          <h1 className="chatbot-title">Cyber Rakshak Chatbot</h1>
+        </header>
 
-        <div className="h-80 overflow-y-auto bg-gray-100 p-4 rounded-lg mb-4 border">
-          {messages.map((msg, index) => (
-            <div key={index} className={`mb-2 flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`px-4 py-3 rounded-xl max-w-[75%] whitespace-pre-wrap ${
-                msg.type === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-yellow-100 text-black'
-              }`}>
-                {msg.text}
+        {/* Chat history */}
+        <div ref={chatContainerRef} className="chat-container hide-scrollbar">
+          {chatHistory.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-center p-6">
+              <div className="bg-blue-50 rounded-xl p-8 max-w-2xl">
+                <h2 className="text-2xl font-bold text-blue-600 mb-4">Welcome to Cyber Rakshak Chatbot 👋</h2>
+                <p className="text-gray-600 mb-4">Ask anything about safety, tech, or Cyber Rakshak's tools!</p>
               </div>
             </div>
-          ))}
-          {loading && (
-            <div className="text-sm text-gray-500 animate-pulse">Cyber Rakshak is typing...</div>
+          ) : (
+            <>
+              {chatHistory.map((chat, index) => (
+                <div key={index} className={`mb-4 ${chat.type === 'question' ? 'text-right' : 'text-left'}`}>
+                  <div className={`chat-bubble ${chat.type}`}>
+                    <ReactMarkdown>{chat.content}</ReactMarkdown>
+                  </div>
+                </div>
+              ))}
+              {generatingAnswer && (
+                <div className="text-left">
+                  <div className="chat-bubble answer animate-pulse">Thinking...</div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="flex-grow p-3 border border-blue-400 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Ask me about scams, privacy, cybersecurity..."
-          />
-          <button
-            onClick={sendMessage}
-            className="bg-blue-700 hover:bg-blue-800 text-white px-6 py-2 rounded-r-md font-semibold"
-          >
-            Send
-          </button>
-        </div>
+        {/* Input */}
+        <form onSubmit={generateAnswer} className="chat-form">
+          <div className="flex gap-2">
+            <textarea
+              required
+              className="chat-input"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask anything..."
+              rows="2"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  generateAnswer(e);
+                }
+              }}
+            ></textarea>
+            <button
+              type="submit"
+              className="chat-button"
+              disabled={generatingAnswer}
+            >
+              Send
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
 }
 
-export default Chatbot;
+export default Chatbot;
