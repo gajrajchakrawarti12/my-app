@@ -1,201 +1,113 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import Logo from '../assets/logo.png';
-import { useAuth } from '../context/AuthContext';
-import { User } from 'lucide-react'
+"use client"
 
-
-function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-  const { user } = useAuth();
-
-  useEffect(() => {
-    setIsOpen(false); // Close mobile menu when route changes
-  }, [location.pathname]);
+import { useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
+import { Menu, User, Shield, LogOut } from "lucide-react"
+import { Button } from "./ui/Button"
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
+import { useAuth } from "../context/AuthContext"
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false)
+  const { user, logout } = useAuth()
+  const { pathname } = useLocation()
+  const navigate = useNavigate();
 
   const navLinks = [
-    { path: '/', name: 'Home' },
-    { path: '/report-scam', name: 'Report Scam' },
-    { path: '/tools', name: 'Tools' },
-    { path: '/learn/modules', name: 'Modules' },
-    { path: '/learn/videos', name: 'Videos' },
-    { path: '/quiz/start', name: 'Take Quiz' },
-    { path: '/quiz/results', name: 'Results' },
-    { path: '/crimeprediction', name: 'Crime Prediction' },
-    { path: '/contact', name: 'Contact' },
+    { path: "/", name: "Home" },
+    { path: "/report-scam", name: "Report Scam" },
+    { path: "/tools", name: "Tools" },
+    { path: "/learn/modules", name: "Modules" },
+    { path: "/learn/videos", name: "Videos" },
+    { path: "/crimeprediction", name: "Crime Prediction" },
+    { path: "/contact", name: "Contact" },
     ...(!user
       ? [
-          { path: '/login', name: 'Login' },
-          { path: '/signup', name: 'Signup' },
+          { path: "/login", name: "Login" },
+          { path: "/signup", name: "Signup" },
         ]
-      : [
-          { path: '/dashboard', name: 'Dashboard', icons: 'user' },
-        ]
-    ),
-  ];
+      : [{ path: "/dashboard", name: "Dashboard", icon: User },
+          { path: "/logout", name: "Logout", icon: LogOut, onClick: async () => {
+            await logout();
+            setIsOpen(false);
+            navigate("/login");
+            window.location.reload();
+          } }
+      ]),
+  ]
+
+  const isActivePath = (path) => {
+    if (path === "/") {
+      return pathname === "/"
+    }
+    return pathname.startsWith(path)
+  }
 
   return (
-    <header className="bg-blue-900 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo and Title */}
-        <div className="flex items-center space-x-2">
-          <img src={Logo} alt="Cyber Rakshak" className="h-8 w-8" />
-          <h1 className="text-xl font-bold">Cyber Rakshak</h1>
+    <header className="bg-blue-900 text-white shadow-lg sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo and Title */}
+          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+            <div className="relative h-8 w-8">
+              <Shield className="h-8 w-8 text-yellow-300" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight">Cyber Rakshak</h1>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {navLinks.map(({ path, name, icon: Icon, onClick }) => (
+              <Link
+                key={name}
+                to={path}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  isActivePath(path) ? "bg-blue-800 text-yellow-300" : "hover:bg-blue-800 hover:text-yellow-300"
+                }`}
+                onClick={onClick ? onClick : undefined}
+              >
+                <span className="flex items-center space-x-1">
+                  {Icon && <Icon className="h-4 w-4" />}
+                  <span>{name}</span>
+                </span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* Mobile menu button */}
+          <div className="lg:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white hover:bg-blue-800">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 bg-blue-900 text-white border-blue-800">
+                <div className="flex items-center space-x-3 mb-8">
+                  <Shield className="h-8 w-8 text-yellow-300" />
+                  <h2 className="text-xl font-bold">Cyber Rakshak</h2>
+                </div>
+                <nav className="flex flex-col space-y-2">
+                  {navLinks.map(({ path, name, icon: Icon }) => (
+                    <Link
+                      key={name}
+                      to={path}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                        isActivePath(path) ? "bg-blue-800 text-yellow-300" : "hover:bg-blue-800 hover:text-yellow-300"
+                      }`}
+                    >
+                      {Icon && <Icon className="h-5 w-5" />}
+                      <span>{name}</span>
+                    </Link>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
-
-        {/* Mobile toggle */}
-        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden focus:outline-none">
-          <img src={require('../assets/dropdown.png')} alt="Menu" className="h-6 w-6" />
-        </button>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6 text-sm">
-          {navLinks.map(({ path, name }) => (
-            <Link
-              key={name}
-              to={path}
-              className="hover:text-yellow-300 font-medium transition-colors"
-            >
-              {<User className="inline-block h-4 w-4 mr-1" />}
-              {name}
-            </Link>
-          ))}
-        </nav>
       </div>
-
-      {/* Mobile Navigation */}
-     {isOpen && (
-  <nav className="fixed right-0 top-13 h-full w-[20vw] bg-orange-900 text-white z-50 px-3 pt-16 space-y-3 text-sm shadow-lg">
-    {navLinks.map(({ path, name }) => (
-      <Link
-        key={name}
-        to={path}
-        className="block px-3 py-2 rounded-md hover:bg-yellow-400 hover:text-blue-900 transition"
-      >
-        {name}
-      </Link>
-    ))}
-  </nav>
-)}
-
-     
     </header>
-  );
+  )
 }
-
-export default Navbar;
-
-
-
-// import React, { useState } from 'react';
-// import { Link } from 'react-router-dom';
-// import Logo from '../assets/logo.png';
-// import MobileDropdown from './MobileDropdown';
-
-// function Navbar() {
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [activeDropdown, setActiveDropdown] = useState(null);
-
-//   const navStructure = [
-//     {
-//       label: 'Home',
-//       links: [{ path: '/', name: 'Landing' }],
-//     },
-//     {
-//       label: 'Report',
-//       links: [{ path: '/report-scam', name: 'Report Scam' }, { path: '/tools', name: 'Tools' }],
-//     },
-//     {
-//       label: 'Contact',
-//       links: [{ path: '/contact', name: 'Support' }, { path: '/team', name: 'Team' }],
-//     },
-//     {
-//       label: 'Learning',
-//       links: [
-//         { path: '/learn/modules', name: 'Modules' },
-//         { path: '/learn/videos', name: 'Videos' },
-//         { path: '/learn/quiz', name: 'Quizzes' },
-//       ],
-//     },
-//     {
-//       label: 'Quiz',
-//       links: [{ path: '/quiz/start', name: 'Take Quiz' }, { path: '/quiz/results', name: 'Results' }],
-//     },
-//   ];
-
-//   return (
-//     <header className="bg-blue-900 text-white shadow-md">
-//       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-//         <div className="flex items-center space-x-2">
-//           <img src={Logo} alt="Cyber Rakshak" className="h-8 w-8" />
-//           <h1 className="text-xl font-bold">Cyber Rakshak</h1>
-//         </div>
-
-//         {/* Mobile toggle */}
-//         {/* <button onClick={() => setIsOpen(!isOpen)} className="md:hidden focus:outline-none">
-//           <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24">
-//             {isOpen ? (
-//               <path d="M6 18L18 6M6 6l12 12" />
-//             ) : (
-//               <path d="M4 6h16M4 12h16M4 18h16" />
-//             )}
-//           </svg>
-//         </button> */}
-//         <button onClick={() => setIsOpen(!isOpen)} className="md:hidden focus:outline-none">
-//   <img
-//     src={require('../assets/dropdown.png')}
-//     alt="Menu"
-//     className="h-6 w-6"
-//   />
-// </button>
-
-
-//         {/* Desktop Nav */}
-//         <nav className="hidden md:flex items-center space-x-6 text-sm">
-//           {navStructure.map(({ label, links }) => (
-//             <div key={label} className="relative group">
-//               <button className="hover:text-yellow-300">{label}</button>
-//               <div className="absolute hidden group-hover:block bg-white text-blue-900 mt-2 rounded shadow-lg">
-//                 {links.map(({ path, name }) => (
-//                   <Link key={name} to={path} className="block px-4 py-2 hover:bg-blue-100">
-//                     {name}
-//                   </Link>
-//                 ))}
-//               </div>
-//             </div>
-//           ))}
-//           <Link to="/login" className="bg-yellow-400 text-blue-900 px-3 py-1 rounded font-semibold hover:bg-yellow-300">
-//             Login
-//           </Link>
-//         </nav>
-//       </div>
-
-//       {/* Mobile Nav */}
-//       {isOpen && (
-//         <nav className="md:hidden px-6 pb-4 space-y-4 text-sm">
-//           {navStructure.map(({ label, links }) => (
-//             <MobileDropdown
-//               key={label}
-//               label={label}
-//               links={links}
-//               isOpen={activeDropdown === label}
-//               onToggle={() =>
-//                 setActiveDropdown(activeDropdown === label ? null : label)
-//               }
-//             />
-//           ))}
-//           <Link
-//             to="/login"
-//             className="block bg-yellow-400 text-blue-900 px-3 py-1 rounded hover:bg-yellow-300 font-semibold"
-//           >
-//             Login
-//           </Link>
-//         </nav>
-//       )}
-//     </header>
-//   );
-// }
-
-// export default Navbar;
-

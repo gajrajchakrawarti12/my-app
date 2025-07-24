@@ -51,7 +51,7 @@ function VideoSlider() {
   };
 
   return (
-    <div className="w-full px-4 py-10 bg-gray-100">
+    <div className="w-full px-4 py-10 bg-gray-100 h-screen">
       {/* Category Selector */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {crimeCategories.map((category) => (
