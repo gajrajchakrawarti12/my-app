@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import ReportScam from './pages/ReportScam';
@@ -11,7 +11,7 @@ import Signup from './pages/Signup';
 import VideoSlider from './components/VideoSlider';
 import CrimeAwareness from './pages/CrimeAwareness';
 import 'leaflet/dist/leaflet.css';
-import Appcrime from './pagescrime/Appcrime.jsx'; // Adjust path if needed
+import Appcrime from './pagescrime/Appcrime'; // Adjust path if needed
 // Adjust path if needed
 // Wrapper to use hooks like useLocation inside Router
 
@@ -21,7 +21,6 @@ import SubscribeList from './pagescrime/SubscribeList.jsx';
 import Dashboard from './pages/Deshboard.jsx';
 import Registration from './pagescrime/Registration.jsx';
 import CrimeReport from './pagescrime/CrimeReport.jsx';
-import NotFound from './pagescrime/NotFound.jsx';
 import MapSpot from './pagescrime/MapSpot.jsx';
 import InteractiveCrimeMapPage from './pagescrime/InteractiveCrimeMapPage.jsx';
 import ScamLearningSection from './pagescrime/ScamLearningSection.jsx';
@@ -31,32 +30,26 @@ import QuizContainer from './components/quiz/QuizContainer.jsx';
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Footer from './components/Footer.jsx';
+import PageNotFound from './pagescrime/NotFound.jsx';
 
 // Adjust path if needed
 function AppWrapper() {
-  const location = useLocation();
 
   return (
     <>
-      {/* Hide Navbar only on Landing page */}
-      {location.pathname !== '/' && <Navbar />
-      }
+      <Navbar />
+
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/crime-awareness" element={<CrimeAwareness />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/report-scam" element={<ProtectedRoute>
-          <ReportScam />
-        </ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute>
-          <Dashboard />
-        </ProtectedRoute>} />
-
+        <Route path="/report-scam" element={<ReportScam />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/learn/videos" element={<VideoSlider />} />
-        <Route path="/tools" element={<Tools />} />
+        <Route path="/chatbot" element={<Tools />} />
         <Route path="/crimeprediction" element={<Appcrime />} />
 
 
@@ -67,7 +60,7 @@ function AppWrapper() {
         <Route path="/analytics" element={<Dashboard />} />
         <Route path="/registration" element={<Registration />} />
         <Route path="/report" element={<CrimeReport />} />
-        <Route path="*" element={<NotFound />} />
+
         <Route path="/map-spot" element={<MapSpot />} />
         <Route path="/interactive-crime-map" element={<InteractiveCrimeMapPage />} />
 
@@ -77,7 +70,7 @@ function AppWrapper() {
 
         <Route path="/" element={<QuizSelector />} />
         <Route path="/quiz/:quizId" element={<QuizContainer />} />
-
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
       {/* Footer is always visible */}
       <Footer />

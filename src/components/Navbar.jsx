@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
-import { Menu, User, Shield, LogOut } from "lucide-react"
+import { Menu, User, Shield, LogOut, MessageSquare, AlertTriangle, LogIn, UserPlus, Mail, PlayCircle, BookOpen } from "lucide-react"
 import { Button } from "./ui/Button"
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
 import { useAuth } from "../context/AuthContext"
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { user, logout } = useAuth()
@@ -16,15 +17,15 @@ export default function Navbar() {
   const navLinks = [
     { path: "/", name: "Home" },
     { path: "/report-scam", name: "Report Scam" },
-    { path: "/tools", name: "Tools" },
-    { path: "/learn/modules", name: "Modules" },
-    { path: "/learn/videos", name: "Videos" },
-    { path: "/crimeprediction", name: "Crime Prediction" },
-    { path: "/contact", name: "Contact" },
+    { path: "/chatbot", name: "AI Assistant", icon: MessageSquare },
+    { path: "/learn/modules", name: "Modules", icon: BookOpen },
+    { path: "/learn/videos", name: "Videos", icon: PlayCircle },
+    { path: "/crimeprediction", name: "Crime Prediction", icon: AlertTriangle },
+    { path: "/contact", name: "Contact" , icon: Mail},
     ...(!user
       ? [
-          { path: "/login", name: "Login" },
-          { path: "/signup", name: "Signup" },
+          { path: "/login", name: "Login", icon: LogIn },
+          { path: "/signup", name: "Signup", icon: UserPlus },
         ]
       : [{ path: "/dashboard", name: "Dashboard", icon: User },
           { path: "/logout", name: "Logout", icon: LogOut, onClick: async () => {

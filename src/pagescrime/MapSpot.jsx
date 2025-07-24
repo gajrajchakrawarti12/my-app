@@ -1,7 +1,6 @@
 // MapSpot.js
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  Container,
   Paper,
   Typography,
   Grid,
