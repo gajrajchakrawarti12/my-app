@@ -13,7 +13,8 @@ export default function Landing() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
         style={{
           backgroundImage:
-            "url('https://t3.ftcdn.net/jpg/08/68/76/66/240_F_868766637_7oCeLzi8UthSXss3c8x4IKAmzIm8WX57.jpg')",
+            "url('http://localhost:5000/files/landing-background.jpg')", // Adjust the path to your background image
+          backgroundSize: 'cover',
         }}
       />
 

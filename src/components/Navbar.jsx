@@ -20,7 +20,7 @@ export default function Navbar() {
     { path: "/chatbot", name: "AI Assistant", icon: MessageSquare },
     { path: "/learn/modules", name: "Modules", icon: BookOpen },
     { path: "/learn/videos", name: "Videos", icon: PlayCircle },
-    { path: "/crimeprediction", name: "Crime Prediction", icon: AlertTriangle },
+    { path: "/crimehub", name: "Crime Hub", icon: AlertTriangle },
     { path: "/contact", name: "Contact" , icon: Mail},
     ...(!user
       ? [

@@ -73,6 +73,7 @@ export function AuthProvider({ children }) {
   const signup = async (
     name,
     username,
+    email,
     password,
   ) => {
     setIsLoading(true);
@@ -82,6 +83,7 @@ export function AuthProvider({ children }) {
         {
           username,
           password,
+          email,
           fullName: name,
         },
         { withCredentials: true }

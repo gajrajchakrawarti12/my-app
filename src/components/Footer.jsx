@@ -60,7 +60,7 @@ const Footer = () => {
                   href="mailto:support@cyberrakshak.org"
                   className="text-gray-300 hover:text-cyan-400 hover:underline transition-colors duration-200"
                 >
-                  support@cyberrakshak.org
+                  support@cyberrakshak.me
                 </a>
               </div>
 

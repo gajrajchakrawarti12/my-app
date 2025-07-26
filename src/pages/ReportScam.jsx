@@ -12,20 +12,6 @@ import { Checkbox } from "../components/ui/checkbox"
 import { Alert, AlertDescription } from "../components/ui/alert"
 import { useAuth } from "../context/AuthContext" // Assuming you have a custom hook for authentication
 
-/**
- * @typedef {Object} FormData
- * @property {string} name
- * @property {string} email
- * @property {string} phone
- * @property {string} scamType
- * @property {string} incidentDate
- * @property {string} amountLost
- * @property {string} description
- * @property {string} evidence
- * @property {boolean} reportedToPolice
- * @property {boolean} consent
- */
-
 const scamTypes = [
   "Phishing Email/Website",
   "Vishing (Voice Call)",
@@ -53,6 +39,10 @@ export default function ReportScam() {
     evidence: "",
     reportedToPolice: false,
     consent: false,
+    location: {
+      longitude: "",
+      latitude: "",
+    }
   })
 
   const { user } = useAuth() // Assuming useAuth is a custom hook to get user info
@@ -98,13 +88,48 @@ export default function ReportScam() {
     e.preventDefault()
 
     if (!validateForm()) return
+    // Get user's current location
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.")
+      return
+    }
+    await navigator.geolocation.getCurrentPosition((position) => {
+      setForm((prev) => ({
+        ...prev,
+        location: {
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+        },
+      }))
+    })
+    if (!form.location.longitude || !form.location.latitude) {
+      alert("Unable to retrieve your location. Please ensure location services are enabled.")
+      return
+    }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // Simulate API call - replace with actual submission
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Report submitted:", form)
+      const response = await fetch("http://localhost:5000/api/report-scam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...form,
+          userId: user ? user._id : null, // Include user ID if available
+          location: {
+            longitude: form.location.longitude,
+            latitude: form.location.latitude,
+          },
+        }),
+      })
+      if (!response.ok) {
+        throw new Error("Failed to submit report")
+      }
+      const data = await response.json()
+      console.log("Report submitted:", data)
       setIsSubmitted(true)
     } catch (error) {
       console.error("Submission error:", error)

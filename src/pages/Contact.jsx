@@ -265,8 +265,8 @@ export default function Contact() {
                     <Mail className="h-5 w-5 text-blue-600 mt-0.5" />
                     <div>
                       <p className="font-medium text-sm">Email</p>
-                      <a href="mailto:support@cyberrakshak.org" className="text-blue-600 hover:text-blue-800 text-sm">
-                        support@cyberrakshak.org
+                      <a href="mailto:support@cyberrakshak.me" className="text-blue-600 hover:text-blue-800 text-sm">
+                        support@cyberrakshak.me
                       </a>
                     </div>
                   </div>
